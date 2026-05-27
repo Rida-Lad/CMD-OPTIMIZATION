@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — FastDeli</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--off-white);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -120px;
+            right: -120px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(168, 200, 232, 0.28) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -80px;
+            left: -80px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(192, 21, 42, 0.07) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 420px;
+            animation: fadeInUp 0.5s ease both;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 36px;
+            letter-spacing: -0.5px;
+            color: var(--ink);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .brand-name span {
+            color: var(--crimson);
+        }
+
+        .brand-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--crimson);
+            border-radius: 50%;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .brand-sub {
+            font-size: 14px;
+            color: var(--ink-muted);
+            margin-top: 8px;
+        }
+
+        .login-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .space-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--off-white);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-btn {
+            padding: 16px 12px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .toggle-btn.active {
+            color: var(--ink);
+            background: var(--white);
+            border-bottom-color: var(--crimson);
+        }
+
+        .toggle-btn:first-child {
+            border-right: 1px solid var(--border);
+        }
+
+        .toggle-btn svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .login-body {
+            padding: 32px;
+        }
+
+        .space-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+
+        .space-label.user {
+            background: var(--blue-pale);
+            color: var(--blue-dark);
+        }
+
+        .space-label.admin {
+            background: var(--crimson-pale);
+            color: var(--crimson);
+        }
+
+        .space-label svg {
+            width: 13px;
+            height: 13px;
+        }
+
+        .login-title {
+            font-family: var(--font-display);
+            font-size: 26px;
+            letter-spacing: -0.3px;
+            margin-bottom: 6px;
+        }
+
+        .login-desc {
+            font-size: 14px;
+            color: var(--ink-muted);
+            margin-bottom: 28px;
+            line-height: 1.55;
+        }
+
+        .forgot-link {
+            font-size: 13px;
+            color: var(--blue-dark);
+            text-decoration: none;
+            float: right;
+            margin-top: -2px;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        #formError {
+            display: none;
+            background: var(--crimson-pale);
+            border: 1px solid #f5c0c8;
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--crimson);
+            margin-bottom: 16px;
+        }
+
+        #formError.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #formError svg {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+
+        .input-icon-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon svg {
+            width: 16px;
+            height: 16px;
+            color: var(--ink-muted);
+        }
+
+        .input-icon-wrap .form-input {
+            padding-left: 42px;
+        }
+
+        .show-pw {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--ink-muted);
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .show-pw:hover {
+            color: var(--ink);
+        }
+
+        .show-pw svg {
+            width: 17px;
+            height: 17px;
+        }
+
+        .btn-connect {
+            background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+            color: white;
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 16px rgba(192, 21, 42, 0.3);
+            transition: all 0.25s ease;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-body);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(192, 21, 42, 0.4);
+        }
+
+        .btn-connect:active {
+            transform: translateY(0);
+        }
+
+        .btn-connect.admin-mode {
+            background: linear-gradient(135deg, var(--ink), var(--ink-light));
+            box-shadow: 0 4px 16px rgba(26, 26, 26, 0.2);
+        }
+
+        .btn-connect.admin-mode:hover {
+            box-shadow: 0 8px 24px rgba(26, 26, 26, 0.3);
+        }
+
+        .btn-connect:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .demo-hint {
+            background: var(--off-white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--ink-muted);
+            line-height: 1.6;
+        }
+
+        .demo-hint strong {
+            color: var(--ink);
+        }
+
+        .login-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--ink-muted);
+        }
+
+        .login-footer a {
+            color: var(--crimson);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <div class="brand">
+            <div class="brand-name">Fast<span>Order</span><span class="brand-dot"></span></div>
+            <div class="brand-sub">Commandez en ligne, profitez de temps devant la caisse</div>
+        </div>
+
+        <div class="login-card">
+            <div class="space-toggle">
+                <button class="toggle-btn active" id="btnUser" onclick="setMode('user')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                    </svg>
+                    Espace Utilisateur
+                </button>
+                <button class="toggle-btn" id="btnAdmin" onclick="setMode('admin')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+                    </svg>
+                    Espace Admin
+                </button>
+            </div>
+
+            <div class="login-body">
+                <div id="formError">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <span id="errorText">Identifiants incorrects</span>
+                </div>
+
+                <div id="spaceLabel" class="space-label user">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                    </svg>
+                    Espace Utilisateur
+                </div>
+                <div id="loginTitle" class="login-title">Bon retour parmi nous</div>
+                <div id="loginDesc" class="login-desc">Connectez-vous pour accéder à votre espace et passer vos
+                    commandes.</div>
+
+                <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+                    <div class="form-group">
+                        <label class="form-label" for="email">Adresse e-mail</label>
+                        <div class="input-icon-wrap">
+                            <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                                    <path d="m2 7 10 7 10-7" />
+                                </svg></span>
+                            <input class="form-input" type="email" id="email" placeholder="vous@exemple.ma" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="password">
+                            Mot de passe
+                            <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+                        </label>
+                        <div class="input-icon-wrap">
+                            <span class="input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                </svg></span>
+                            <input class="form-input" type="password" id="password" placeholder="••••••••" required>
+                            <button type="button" class="show-pw" onclick="togglePw()" id="togglePwBtn">
+                                <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-connect" id="connectBtn">Se connecter</button>
+                </form>
+            </div>
+        </div>
+        <div class="login-footer" style="margin-top:20px;">Pas encore de compte ? <a href="#">Créer un compte</a></div>
+    </div>
+
+    <script>
+        let currentMode = 'user';
+        let pwVisible = false;
+
+        function setMode(mode) {
+            currentMode = mode;
+            const isAdmin = mode === 'admin';
+            document.getElementById('btnUser').classList.toggle('active', !isAdmin);
+            document.getElementById('btnAdmin').classList.toggle('active', isAdmin);
+            const label = document.getElementById('spaceLabel');
+            const btn = document.getElementById('connectBtn');
+            if (isAdmin) {
+                label.className = 'space-label admin';
+                label.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg> Espace Administrateur`;
+                document.getElementById('loginTitle').textContent = 'Administration';
+                document.getElementById('loginDesc').textContent = 'Accès réservé aux administrateurs de la plateforme.';
+                btn.classList.add('admin-mode');
+            } else {
+                label.className = 'space-label user';
+                label.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> Espace Utilisateur`;
+                document.getElementById('loginTitle').textContent = 'Bon retour parmi nous';
+                document.getElementById('loginDesc').textContent = 'Connectez-vous pour accéder à votre espace et passer vos commandes.';
+                btn.classList.remove('admin-mode');
+            }
+            document.getElementById('formError').classList.remove('show');
+        }
+
+        function togglePw() {
+            const inp = document.getElementById('password');
+            pwVisible = !pwVisible;
+            inp.type = pwVisible ? 'text' : 'password';
+            document.getElementById('eyeIcon').innerHTML = pwVisible
+                ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+                : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('formError');
+            errorEl.classList.remove('show');
+            if (!email || !password) { document.getElementById('errorText').textContent = 'Veuillez remplir tous les champs.'; errorEl.classList.add('show'); return; }
+            if (!email.includes('@')) { document.getElementById('errorText').textContent = 'Adresse e-mail invalide.'; errorEl.classList.add('show'); return; }
+            if (password.length < 3) { document.getElementById('errorText').textContent = 'Mot de passe trop court.'; errorEl.classList.add('show'); return; }
+            const btn = document.getElementById('connectBtn');
+            btn.textContent = 'Connexion en cours…'; btn.disabled = true;
+            setTimeout(() => { window.location.href = currentMode === 'admin' ? 'admin.html' : 'dashboard.html'; }, 900);
+        }
+    </script>
+</body>
+
+</html>

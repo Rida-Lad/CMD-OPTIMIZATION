@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration — FastDeli</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-layout {
+            display: flex;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--ink);
+            flex-shrink: 0;
+            padding: 28px 0;
+            position: sticky;
+            top: 64px;
+            height: calc(100vh - 64px);
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 0 16px;
+            margin-bottom: 24px;
+        }
+
+        .sidebar-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            color: rgba(255, 255, 255, 0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .sidebar-link.active {
+            background: var(--crimson);
+            color: white;
+        }
+
+        .sidebar-link svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-radius: 99px;
+            padding: 1px 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .sidebar-link.active .sidebar-badge {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Main */
+        .admin-main {
+            flex: 1;
+            padding: 40px 32px 80px;
+            overflow: auto;
+        }
+
+        /* Stats */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card .s-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .s-val {
+            font-family: var(--font-display);
+            font-size: 32px;
+            color: var(--ink);
+        }
+
+        .stat-card .s-sub {
+            font-size: 12px;
+            color: var(--ink-muted);
+            margin-top: 4px;
+        }
+
+        .stat-card.accent-red {
+            border-left: 3px solid var(--crimson);
+        }
+
+        .stat-card.accent-blue {
+            border-left: 3px solid var(--blue-dark);
+        }
+
+        .stat-card.accent-green {
+            border-left: 3px solid #22c55e;
+        }
+
+        .stat-card.accent-yellow {
+            border-left: 3px solid #f59e0b;
+        }
+
+        /* Sections */
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        /* Status select */
+        .status-select {
+            padding: 6px 10px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .status-select.approved {
+            background: #edfaf3;
+            color: #1a7a4a;
+        }
+
+        .status-select.pending {
+            background: #fffbeb;
+            color: #92680a;
+        }
+
+        .status-select.rejected {
+            background: var(--crimson-pale);
+            color: var(--crimson);
+        }
+
+        /* User avatar */
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue-pale), var(--blue-mid));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--blue-dark);
+            flex-shrink: 0;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .order-products-detail {
+            max-width: 260px;
+            word-break: break-word;
+            font-size: 13px;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* Filter bar */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-input {
+            padding: 9px 14px 9px 38px;
+            border: 1.5px solid var(--border-strong);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 14px;
+            color: var(--ink);
+            background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 12px center;
+            outline: none;
+            transition: var(--transition);
+            width: 240px;
+        }
+
+        .filter-input:focus {
+            border-color: var(--blue-dark);
+        }
+
+        .filter-tag {
+            padding: 7px 14px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1.5px solid var(--border-strong);
+            background: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--ink-light);
+        }
+
+        .filter-tag:hover {
+            border-color: var(--ink-muted);
+            color: var(--ink);
+        }
+
+        .filter-tag.active {
+            border-color: var(--crimson);
+            color: var(--crimson);
+            background: var(--crimson-pale);
+        }
+
+        /* Food color blocks in admin product table */
+        .food-thumb {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .food-thumb svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 999;
+        }
+
+        /* Admin label */
+        .admin-role-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 99px;
+            background: var(--crimson-pale);
+            color: var(--crimson);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .admin-role-tag svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+                padding: 16px 0;
+                display: flex;
+                overflow-x: auto;
+            }
+
+            .sidebar-section {
+                display: flex;
+                margin-bottom: 0;
+                gap: 4px;
+            }
+
+            .sidebar-label {
+                display: none;
+            }
+
+            .admin-main {
+                padding: 24px 16px;
+            }
+
+            .admin-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav">
+        <a href="index.html" class="nav-logo">Fast<span>Order</span><span class="logo-dot"></span></a>
+        <div class="nav-links">
+            <span class="admin-role-tag">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+                </svg>
+                Admin
+            </span>
+            <a href="index.html" class="nav-link">Déconnexion</a>
+        </div>
+    </nav>
+
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Navigation</div>
+                <button class="sidebar-link active" onclick="showSection('commandes')" id="nav-commandes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                    Commandes
+                    <span class="sidebar-badge" id="navBadgeCmd">5</span>
+                </button>
+                <button class="sidebar-link" onclick="showSection('utilisateurs')" id="nav-utilisateurs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    Utilisateurs
+                    <span class="sidebar-badge">4</span>
+                </button>
+                <button class="sidebar-link" onclick="showSection('produits')" id="nav-produits">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" />
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                    </svg>
+                    Menu
+                    <span class="sidebar-badge">12</span>
+                </button>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-label">Accès rapide</div>
+                <a href="dashboard.html" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                    Voir la boutique
+                </a>
+                <button class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2" />
+                    </svg>
+                    Parametres
+                </button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-stats fade-in" id="statsGrid"></div>
+
+            <!-- COMMANDES -->
+            <div class="admin-section active fade-in" id="section-commandes">
+                <div class="section-heading">
+                    <div class="accent-line"></div>
+                    <h2>Gestion des Commandes</h2>
+                </div>
+                <div class="filter-bar">
+                    <input class="filter-input" type="text" placeholder="Rechercher une commande..."
+                        oninput="filterOrders(this.value)">
+                    <button class="filter-tag active" onclick="setFilter('all', this)">Toutes</button>
+                    <button class="filter-tag" onclick="setFilter('pending', this)">En attente</button>
+                    <button class="filter-tag" onclick="setFilter('approved', this)">Approuvees</button>
+                    <button class="filter-tag" onclick="setFilter('rejected', this)">Rejetees</button>
+                </div>
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>N° commande</th>
+                                    <th>Details</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminOrdersBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UTILISATEURS -->
+            <div class="admin-section fade-in" id="section-utilisateurs">
+                <div class="section-heading">
+                    <div class="accent-line"></div>
+                    <h2>Gestion des Utilisateurs</h2>
+                </div>
+                <div class="filter-bar">
+                    <input class="filter-input" type="text" placeholder="Rechercher un utilisateur..."
+                        oninput="filterUsers(this.value)">
+                </div>
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Utilisateur</th>
+                                    <th>E-mail</th>
+                                    <th>Role</th>
+                                    <th>Commandes</th>
+                                    <th>Inscription</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUITS / MENU -->
+            <div class="admin-section fade-in" id="section-produits">
+                <div class="section-heading">
+                    <div class="accent-line"></div>
+                    <h2>Gestion du Menu</h2>
+                </div>
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Article</th>
+                                    <th>Categorie</th>
+                                    <th>Prix</th>
+                                    <th>Disponibilite</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ── DATA ──
+        let orders = [
+            { id: '#CMD-001', products: 'Burger Kefta x1, Frites Maison x1', client: 'Amine Ouali', date: '28/03/2026', amount: '50,00 MAD', status: 'approved' },
+            { id: '#CMD-002', products: 'Pizza Marocaine x1, Avocat Lait x2', client: 'Fatima Azzouzi', date: '30/03/2026', amount: '99,00 MAD', status: 'pending' },
+            { id: '#CMD-003', products: 'Sandwich Chawarma x2', client: 'Youssef Benali', date: '01/04/2026', amount: '60,00 MAD', status: 'rejected' },
+            { id: '#CMD-004', products: 'Cornes de Gazelle x2, Jus d\'Orange x1', client: 'Salma Tazi', date: '01/04/2026', amount: '56,00 MAD', status: 'pending' },
+            { id: '#CMD-005', products: 'Burger Mergez x1, Salade Zaalouk x1', client: 'Amine Ouali', date: '02/04/2026', amount: '56,00 MAD', status: 'pending' },
+        ];
+
+        const users = [
+            { name: 'Amine Ouali', email: 'amine.ouali@mail.ma', role: 'Client', orders: 2, since: 'Jan. 2025' },
+            { name: 'Fatima Azzouzi', email: 'fatima.azzouzi@mail.ma', role: 'Client', orders: 1, since: 'Fev. 2025' },
+            { name: 'Youssef Benali', email: 'youssef.benali@mail.ma', role: 'Client', orders: 1, since: 'Mars 2025' },
+            { name: 'Salma Tazi', email: 'salma.tazi@mail.ma', role: 'Client', orders: 1, since: 'Dec. 2024' },
+        ];
+
+        const bgClass = {
+            'Burgers': 'bg-burger', 'Sandwichs': 'bg-sandwich', 'Pizzas': 'bg-pizza',
+            'Boissons': 'bg-drink', 'Accompagnements': 'bg-sides', 'Desserts': 'bg-dessert',
+        };
+
+        const menuItems = [
+            { name: 'Burger Kefta', cat: 'Burgers', price: '35,00 MAD', available: true },
+            { name: 'Burger Mergez', cat: 'Burgers', price: '38,00 MAD', available: true },
+            { name: 'Sandwich Chawarma', cat: 'Sandwichs', price: '30,00 MAD', available: true },
+            { name: 'Sandwich Poulet', cat: 'Sandwichs', price: '28,00 MAD', available: false },
+            { name: 'Pizza Marocaine', cat: 'Pizzas', price: '55,00 MAD', available: true },
+            { name: 'Pizza Quatre Fromages', cat: 'Pizzas', price: '60,00 MAD', available: true },
+            { name: 'Frites Maison', cat: 'Accompagnements', price: '15,00 MAD', available: true },
+            { name: 'Salade Zaalouk', cat: 'Accompagnements', price: '18,00 MAD', available: true },
+            { name: 'Jus d\'Orange Frais', cat: 'Boissons', price: '18,00 MAD', available: true },
+            { name: 'Avocat Lait', cat: 'Boissons', price: '22,00 MAD', available: true },
+            { name: 'Cornes de Gazelle', cat: 'Desserts', price: '20,00 MAD', available: true },
+            { name: 'Chebakia', cat: 'Desserts', price: '18,00 MAD', available: false },
+        ];
+
+        // ── NAV ──
+        function showSection(name) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(`section-${name}`).classList.add('active');
+            document.getElementById(`nav-${name}`).classList.add('active');
+            renderStats();
+        }
+
+        // ── STATS ──
+        function renderStats() {
+            const total = orders.length;
+            const approved = orders.filter(o => o.status === 'approved').length;
+            const pending = orders.filter(o => o.status === 'pending').length;
+            document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card accent-red">
+          <div class="s-label">Commandes totales</div>
+          <div class="s-val">${total}</div>
+          <div class="s-sub">Toutes periodes</div>
+        </div>
+        <div class="stat-card accent-green">
+          <div class="s-label">Approuvees</div>
+          <div class="s-val">${approved}</div>
+          <div class="s-sub">${Math.round(approved / total * 100)}% du total</div>
+        </div>
+        <div class="stat-card accent-yellow">
+          <div class="s-label">En attente</div>
+          <div class="s-val">${pending}</div>
+          <div class="s-sub">A traiter</div>
+        </div>
+        <div class="stat-card accent-blue">
+          <div class="s-label">Utilisateurs</div>
+          <div class="s-val">${users.length}</div>
+          <div class="s-sub">Comptes actifs</div>
+        </div>`;
+            document.getElementById('navBadgeCmd').textContent = total;
+        }
+
+        // ── ORDERS ──
+        let currentFilter = 'all', currentSearch = '';
+
+        function renderOrders() {
+            let filtered = orders.filter(o => {
+                const mf = currentFilter === 'all' || o.status === currentFilter;
+                const ms = !currentSearch || o.id.toLowerCase().includes(currentSearch.toLowerCase()) || o.client.toLowerCase().includes(currentSearch.toLowerCase()) || o.products.toLowerCase().includes(currentSearch.toLowerCase());
+                return mf && ms;
+            });
+            const tbody = document.getElementById('adminOrdersBody');
+            if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state" style="padding:32px"><p>Aucune commande trouvee</p></div></td></tr>`; return; }
+            tbody.innerHTML = filtered.map(o => {
+                const initials = o.client.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                return `<tr>
+          <td><strong>${o.id}</strong></td>
+          <td class="order-products-detail">${o.products}</td>
+          <td><div class="user-cell"><div class="user-avatar">${initials}</div><span style="font-size:14px;">${o.client}</span></div></td>
+          <td style="white-space:nowrap">${o.date}</td>
+          <td><strong>${o.amount}</strong></td>
+          <td>
+            <select class="status-select ${o.status}" onchange="changeStatus('${o.id}', this)" style="min-width:130px;">
+              <option value="pending"  ${o.status === 'pending' ? 'selected' : ''}>En attente</option>
+              <option value="approved" ${o.status === 'approved' ? 'selected' : ''}>Approuvee</option>
+              <option value="rejected" ${o.status === 'rejected' ? 'selected' : ''}>Rejetee</option>
+            </select>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-secondary btn-sm" onclick="viewOrder('${o.id}')">Voir</button>
+            </div>
+          </td>
+        </tr>`;
+            }).join('');
+        }
+
+        function changeStatus(id, selectEl) {
+            const order = orders.find(o => o.id === id);
+            if (!order) return;
+            order.status = selectEl.value;
+            selectEl.className = `status-select ${selectEl.value}`;
+            const msgs = { approved: 'Commande approuvee', pending: 'Commande mise en attente', rejected: 'Commande rejetee' };
+            const types = { approved: 'success', pending: 'info', rejected: 'error' };
+            showToast(msgs[selectEl.value], types[selectEl.value]);
+            renderStats();
+        }
+
+        function viewOrder(id) {
+            const o = orders.find(x => x.id === id);
+            if (o) showToast(`${o.id} — ${o.client} — ${o.amount}`, 'info');
+        }
+
+        function setFilter(f, el) {
+            currentFilter = f;
+            document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+            el.classList.add('active'); renderOrders();
+        }
+
+        function filterOrders(val) { currentSearch = val; renderOrders(); }
+
+        // ── USERS ──
+        let usersData = [...users];
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersBody');
+            tbody.innerHTML = usersData.map(u => {
+                const initials = u.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                return `<tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">${initials}</div>
+              <div>
+                <div style="font-weight:600;font-size:14px;">${u.name}</div>
+                <div style="font-size:12px;color:var(--ink-muted);">Membre depuis ${u.since}</div>
+              </div>
+            </div>
+          </td>
+          <td>${u.email}</td>
+          <td><span class="tag tag-blue">${u.role}</span></td>
+          <td><strong>${u.orders}</strong></td>
+          <td>${u.since}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-secondary btn-sm" onclick="showToast('Profil de ${u.name} ouvert', 'info')">Voir</button>
+              <button class="btn btn-danger btn-sm" onclick="showToast('Compte de ${u.name} suspendu (simulation)', 'error')">Suspendre</button>
+            </div>
+          </td>
+        </tr>`;
+            }).join('');
+        }
+
+        function filterUsers(val) {
+            usersData = users.filter(u => u.name.toLowerCase().includes(val.toLowerCase()) || u.email.toLowerCase().includes(val.toLowerCase()));
+            renderUsers();
+        }
+
+        // ── PRODUCTS ──
+        const catColors = { 'Burgers': '#fff8f0', 'Sandwichs': '#f0fff4', 'Pizzas': '#fff0f0', 'Boissons': '#f0f8ff', 'Accompagnements': '#fffdf0', 'Desserts': '#fdf0ff' };
+
+        function renderProducts() {
+            const tbody = document.getElementById('productsBody');
+            tbody.innerHTML = menuItems.map((p, i) => {
+                const avTag = p.available ? `<span class="tag tag-green">Disponible</span>` : `<span class="tag tag-red">Indisponible</span>`;
+                return `<tr>
+          <td>
+            <div class="user-cell">
+              <div class="food-thumb" style="background:${catColors[p.cat] || '#f8f7f5'};">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="1.5"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+              </div>
+              <span style="font-weight:600;font-size:14px;">${p.name}</span>
+            </div>
+          </td>
+          <td><span class="tag tag-blue">${p.cat}</span></td>
+          <td><strong>${p.price}</strong></td>
+          <td>${avTag}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-secondary btn-sm" onclick="showToast('Modification de ${p.name} (simulation)', 'info')">Modifier</button>
+              <button class="btn btn-danger btn-sm" onclick="toggleAvailability(${i}, this)">
+                ${p.available ? 'Desactiver' : 'Activer'}
+              </button>
+            </div>
+          </td>
+        </tr>`;
+            }).join('');
+        }
+
+        function toggleAvailability(idx, btn) {
+            menuItems[idx].available = !menuItems[idx].available;
+            showToast(`${menuItems[idx].name} ${menuItems[idx].available ? 'active' : 'desactive'} (simulation)`, menuItems[idx].available ? 'success' : 'error');
+            renderProducts();
+        }
+
+        // ── TOAST ──
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            const icons = {
+                success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+                error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+                info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+            };
+            t.innerHTML = (icons[type] || '') + msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; t.style.transition = '0.3s'; setTimeout(() => t.remove(), 300); }, 3200);
+        }
+
+        // ── INIT ──
+        renderStats();
+        renderOrders();
+        renderUsers();
+        renderProducts();
+    </script>
+</body>
+
+</html>

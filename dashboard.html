@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu — FastDeli</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .page-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px 100px;
+        }
+
+        /* Stats bar */
+        .stat-bar {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .stat-pill {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-sm);
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .stat-pill .sp-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-pill .sp-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .sp-icon-red {
+            background: var(--crimson-pale);
+            color: var(--crimson);
+        }
+
+        .sp-icon-green {
+            background: #edfaf3;
+            color: #1a7a4a;
+        }
+
+        .sp-icon-yellow {
+            background: #fffbeb;
+            color: #92680a;
+        }
+
+        .sp-icon-blue {
+            background: var(--blue-pale);
+            color: var(--blue-dark);
+        }
+
+        .stat-pill .stat-val {
+            font-family: var(--font-display);
+            font-size: 22px;
+        }
+
+        .stat-pill .stat-lbl {
+            font-size: 12px;
+            color: var(--ink-muted);
+        }
+
+        /* Category tabs */
+        .cat-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .cat-tab {
+            padding: 7px 18px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1.5px solid var(--border-strong);
+            background: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--ink-light);
+        }
+
+        .cat-tab:hover {
+            border-color: var(--ink-muted);
+            color: var(--ink);
+        }
+
+        .cat-tab.active {
+            border-color: var(--crimson);
+            color: var(--crimson);
+            background: var(--crimson-pale);
+        }
+
+        /* Products grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Illustrated food placeholder using CSS + SVG */
+        .product-img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-img svg {
+            width: 72px;
+            height: 72px;
+        }
+
+        .product-info {
+            padding: 16px;
+        }
+
+        .product-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--ink);
+            margin-bottom: 3px;
+        }
+
+        .product-desc {
+            font-size: 12px;
+            color: var(--ink-muted);
+            margin-bottom: 10px;
+            line-height: 1.45;
+        }
+
+        .product-price {
+            font-family: var(--font-display);
+            font-size: 20px;
+            color: var(--crimson);
+            margin-bottom: 14px;
+        }
+
+        .product-price small {
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--ink-muted);
+        }
+
+        /* Cart modal */
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-thumb {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .cart-item-thumb svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .cart-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .cart-item-price {
+            font-size: 13px;
+            color: var(--crimson);
+            font-weight: 500;
+        }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .cart-summary {
+            background: var(--off-white);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .cart-summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--ink-light);
+            margin-bottom: 8px;
+        }
+
+        .cart-summary-row:last-child {
+            margin-bottom: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink);
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+            margin-top: 4px;
+        }
+
+        /* Orders section */
+        .orders-section {
+            margin-top: 56px;
+        }
+
+        /* FAB */
+        .cart-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: var(--crimson);
+            color: white;
+            border: none;
+            border-radius: 99px;
+            padding: 14px 22px;
+            font-family: var(--font-body);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(192, 21, 42, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            z-index: 90;
+        }
+
+        .cart-fab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(192, 21, 42, 0.45);
+        }
+
+        .cart-fab svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .fab-badge {
+            background: white;
+            color: var(--crimson);
+            border-radius: 99px;
+            padding: 2px 8px;
+            font-size: 13px;
+            font-weight: 700;
+            min-width: 22px;
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat-bar {
+                gap: 10px;
+            }
+
+            .stat-pill {
+                min-width: 120px;
+                padding: 12px 14px;
+            }
+        }
+
+        /* Food SVG color palettes per category */
+        .bg-burger {
+            background: linear-gradient(135deg, #fff8f0, #ffe8cc);
+        }
+
+        .bg-sandwich {
+            background: linear-gradient(135deg, #f0fff4, #d4f4e2);
+        }
+
+        .bg-pizza {
+            background: linear-gradient(135deg, #fff0f0, #ffd6d6);
+        }
+
+        .bg-drink {
+            background: linear-gradient(135deg, #f0f8ff, #d0e8f8);
+        }
+
+        .bg-sides {
+            background: linear-gradient(135deg, #fffdf0, #fff0c0);
+        }
+
+        .bg-dessert {
+            background: linear-gradient(135deg, #fdf0ff, #f0d4f8);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav">
+        <a href="index.html" class="nav-logo">
+            Fast<span>Order</span><span class="logo-dot"></span>
+        </a>
+        <div class="nav-links">
+            <div class="nav-user">
+                <div class="nav-user-dot">AO</div>
+                Amine Ouali
+            </div>
+            <a href="index.html" class="nav-link">Déconnexion</a>
+        </div>
+    </nav>
+
+    <main class="page-main">
+        <!-- Stats -->
+        <div class="stat-bar fade-in">
+            <div class="stat-pill">
+                <div class="sp-icon sp-icon-red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=/>"2">
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" 
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="stat-val" id="statTotal">3</div>
+                    <div class="stat-lbl">Commandes</div>
+                </div>
+            </div>
+            <div class="stat-pill">
+                <div class="sp-icon sp-icon-green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="stat-val" id="statApproved">1</div>
+                    <div class="stat-lbl">Approuvées</div>
+                </div>
+            </div>
+            <div class="stat-pill">
+                <div class="sp-icon sp-icon-yellow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="stat-val" id="statPending">1</div>
+                    <div class="stat-lbl">En attente</div>
+                </div>
+            </div>
+            <div class="stat-pill">
+                <div class="sp-icon sp-icon-blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1" />
+                        <circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="stat-val" id="statCart">0</div>
+                    <div class="stat-lbl">Dans le panier</div>
+                </div>
+            </div>
+        </div>
+        <!-- Orders -->
+        <div class="orders-section">
+            <div class="section-heading">
+                <div class="accent-line"></div>
+                <h2>Mes Commandes</h2>
+            </div>
+            <div class="card fade-in">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>N° commande</th>
+                                <th>Articles</th>
+                                <th>Date &amp; heure</th>
+                                <th>Montant</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu -->
+        <div class="section-heading">
+            <div class="accent-line"></div>
+            <h2>Notre Menu</h2>
+        </div>
+        <div class="cat-tabs" id="catTabs"></div>
+        <div class="products-grid fade-in" id="productsGrid"></div>
+
+    </main>
+
+    <!-- FAB Cart -->
+    <button class="cart-fab" onclick="openCart()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+        Mon Panier
+        <span class="fab-badge" id="fabBadge">0</span>
+    </button>
+
+    <!-- Cart Modal -->
+    <div class="overlay" id="cartOverlay" onclick="handleOverlayClick(event)">
+        <div class="modal" id="cartModal">
+            <div class="modal-header">
+                <span class="modal-title">Mon Panier</span>
+                <button class="modal-close" onclick="closeCart()">&#215;</button>
+            </div>
+            <div class="modal-body">
+                <div id="cartContent"></div>
+            </div>
+            <div class="modal-footer" id="cartFooter"></div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ── SVG ICONS PER CATEGORY (inline, no emojis) ──
+        const catIcons = {
+            'Burgers': `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="38" width="48" height="8" rx="4" fill="#c0152a" opacity=".15"/>
+        <rect x="10" y="30" width="44" height="8" rx="2" fill="#f59e0b"/>
+        <rect x="8" y="22" width="48" height="9" rx="2" fill="#92680a" opacity=".4"/>
+        <path d="M10 22 Q32 12 54 22" fill="#c87941"/>
+        <rect x="8" y="38" width="48" height="4" rx="2" fill="#e2b97e"/>
+        <ellipse cx="32" cy="34" rx="22" ry="4" fill="#22c55e" opacity=".3"/>
+      </svg>`,
+            'Sandwichs': `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="34" width="52" height="10" rx="5" fill="#e2b97e"/>
+        <rect x="10" y="26" width="44" height="8" rx="2" fill="#fff" stroke="#e2b97e" stroke-width="1"/>
+        <rect x="10" y="27" width="44" height="2" rx="1" fill="#22c55e" opacity=".5"/>
+        <rect x="10" y="30" width="44" height="2" rx="1" fill="#c0152a" opacity=".4"/>
+        <rect x="6" y="20" width="52" height="7" rx="3.5" fill="#c87941"/>
+      </svg>`,
+            'Pizzas': `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="36" r="22" fill="#f59e0b" opacity=".25"/>
+        <circle cx="32" cy="36" r="18" fill="#e2b97e"/>
+        <circle cx="32" cy="36" r="14" fill="#c0152a" opacity=".2"/>
+        <circle cx="26" cy="32" r="3" fill="#c0152a" opacity=".6"/>
+        <circle cx="38" cy="34" r="2" fill="#c0152a" opacity=".6"/>
+        <circle cx="30" cy="40" r="2.5" fill="#c0152a" opacity=".6"/>
+        <path d="M32 14 L44 36 L20 36 Z" fill="#f59e0b" opacity=".5"/>
+      </svg>`,
+            'Boissons': `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="18" width="24" height="32" rx="4" fill="#3a7fa8" opacity=".2"/>
+        <rect x="22" y="18" width="20" height="2" rx="1" fill="#3a7fa8" opacity=".4"/>
+        <rect x="24" y="16" width="16" height="4" rx="2" fill="#6aadd6" opacity=".5"/>
+        <path d="M22 26 Q32 22 42 26" stroke="#6aadd6" stroke-width="1.5" fill="none"/>
+        <rect x="20" y="40" width="24" height="10" rx="0 0 4 4" fill="#3a7fa8" opacity=".3"/>
+        <line x1="30" y1="12" x2="30" y2="16" stroke="#3a7fa8" stroke-width="2"/>
+        <line x1="34" y1="10" x2="34" y2="16" stroke="#3a7fa8" stroke-width="2"/>
+      </svg>`,
+            'Accompagnements': `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="16" y="30" width="8" height="20" rx="2" fill="#f59e0b"/>
+        <rect x="28" y="24" width="8" height="26" rx="2" fill="#f59e0b"/>
+        <rect x="40" y="28" width="8" height="22" rx="2" fill="#f59e0b"/>
+        <rect x="12" y="48" width="40" height="6" rx="3" fill="#c87941" opacity=".4"/>
+        <ellipse cx="32" cy="30" rx="12" ry="4" fill="#f59e0b" opacity=".3"/>
+      </svg>`,
+            'Desserts': `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="32" cy="42" rx="22" ry="8" fill="#e2b97e"/>
+        <ellipse cx="32" cy="38" rx="18" ry="7" fill="#fff" stroke="#e2b97e" stroke-width="1"/>
+        <ellipse cx="32" cy="34" rx="14" ry="6" fill="#fdf0ff"/>
+        <path d="M24 34 Q32 18 40 34" fill="#c0152a" opacity=".25"/>
+        <circle cx="32" cy="20" r="4" fill="#c0152a" opacity=".5"/>
+      </svg>`,
+        };
+
+        const bgClass = {
+            'Burgers': 'bg-burger',
+            'Sandwichs': 'bg-sandwich',
+            'Pizzas': 'bg-pizza',
+            'Boissons': 'bg-drink',
+            'Accompagnements': 'bg-sides',
+            'Desserts': 'bg-dessert',
+        };
+
+        // ── MENU DATA ──
+        const products = [
+            { id: 1, name: 'Burger Kefta', cat: 'Burgers', price: 35.00, desc: 'Pain brioche, kefta grillée, tomate, oignon, harissa maison' },
+            { id: 2, name: 'Burger Mergez', cat: 'Burgers', price: 38.00, desc: 'Pain brioche, mergez grillée, roquette, fromage fondu' },
+            { id: 3, name: 'Sandwich Chawarma', cat: 'Sandwichs', price: 30.00, desc: 'Agneau mariné, légumes grillés, sauce tahini, pain markouk' },
+            { id: 4, name: 'Sandwich Poulet', cat: 'Sandwichs', price: 28.00, desc: 'Poulet rôti, salade, cornichons, mayo, pain baguette' },
+            { id: 5, name: 'Pizza Marocaine', cat: 'Pizzas', price: 55.00, desc: 'Base tomate, kefta, poivrons, olives, cumin, fromage' },
+            { id: 6, name: 'Pizza Quatre Fromages', cat: 'Pizzas', price: 60.00, desc: 'Mozzarella, gouda, chèvre, parmesan, origan' },
+            { id: 7, name: 'Frites Maison', cat: 'Accompagnements', price: 15.00, desc: 'Frites fraîches dorées, épices marocaines, sauce dip' },
+            { id: 8, name: 'Salade Zaalouk', cat: 'Accompagnements', price: 18.00, desc: 'Aubergine, tomate, ail, coriandre, huile d\'olive' },
+            { id: 9, name: 'Jus d\'Orange Frais', cat: 'Boissons', price: 18.00, desc: 'Oranges pressées à la commande, sans sucre ajouté' },
+            { id: 10, name: 'Avocat Lait', cat: 'Boissons', price: 22.00, desc: 'Avocat frais, lait, miel — la star de Marrakech' },
+            { id: 11, name: 'Cornes de Gazelle', cat: 'Desserts', price: 20.00, desc: 'Pâte feuilletée, amandes, fleur d\'oranger, sucre glace' },
+            { id: 12, name: 'Chebakia', cat: 'Desserts', price: 18.00, desc: 'Biscuit au miel et sésame, parfum de fleur d\'oranger' },
+        ];
+
+        let orders = [
+            { id: '#CMD-001', products: 'Burger Kefta x1, Frites Maison x1', date: '28/03/2026 12:45', amount: '50,00 MAD', status: 'approved' },
+            { id: '#CMD-002', products: 'Pizza Marocaine x1, Jus d\'Orange x2', date: '30/03/2026 19:22', amount: '91,00 MAD', status: 'pending' },
+            { id: '#CMD-003', products: 'Sandwich Chawarma x2', date: '01/04/2026 13:10', amount: '60,00 MAD', status: 'rejected' },
+        ];
+
+        let cart = {};
+        let currentCat = 'Tous';
+
+        const categories = ['Tous', ...new Set(products.map(p => p.cat))];
+
+        // ── RENDER CATEGORY TABS ──
+        function renderTabs() {
+            const el = document.getElementById('catTabs');
+            el.innerHTML = categories.map(c =>
+                `<button class="cat-tab ${c === currentCat ? 'active' : ''}" onclick="setCat('${c}')">${c}</button>`
+            ).join('');
+        }
+
+        function setCat(cat) {
+            currentCat = cat;
+            renderTabs();
+            renderProducts();
+        }
+
+        // ── RENDER PRODUCTS ──
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const filtered = currentCat === 'Tous' ? products : products.filter(p => p.cat === currentCat);
+            grid.innerHTML = filtered.map(p => `
+        <div class="product-card">
+          <div class="product-img ${bgClass[p.cat] || ''}">${catIcons[p.cat] || ''}</div>
+          <div class="product-info">
+            <div class="product-name">${p.name}</div>
+            <div class="product-desc">${p.desc}</div>
+            <div class="product-price">${p.price.toFixed(2).replace('.', ',')} <small>MAD</small></div>
+            <button class="btn btn-primary btn-full btn-sm" onclick="addToCart(${p.id})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Ajouter au panier
+            </button>
+          </div>
+        </div>
+      `).join('');
+        }
+
+        // ── CART ──
+        function addToCart(id) {
+            const p = products.find(x => x.id === id);
+            if (cart[id]) { cart[id].qty++; } else { cart[id] = { ...p, qty: 1 }; }
+            updateCartBadge();
+            showToast(`${p.name} ajouté au panier`, 'success');
+        }
+
+        function updateCartBadge() {
+            const count = Object.values(cart).reduce((s, i) => s + i.qty, 0);
+            document.getElementById('fabBadge').textContent = count;
+            document.getElementById('statCart').textContent = count;
+        }
+
+        function openCart() { renderCartModal(); document.getElementById('cartOverlay').classList.add('active'); }
+        function closeCart() { document.getElementById('cartOverlay').classList.remove('active'); }
+        function handleOverlayClick(e) { if (e.target === document.getElementById('cartOverlay')) closeCart(); }
+
+        function cartTotal() { return Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0); }
+        function cartCount() { return Object.values(cart).reduce((s, i) => s + i.qty, 0); }
+
+        function renderCartModal() {
+            const content = document.getElementById('cartContent');
+            const footer = document.getElementById('cartFooter');
+            const items = Object.values(cart);
+
+            if (!items.length) {
+                content.innerHTML = `<div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <p>Votre panier est vide.<br>Ajoutez des articles pour commencer.</p>
+        </div>`;
+                footer.innerHTML = ''; return;
+            }
+
+            content.innerHTML = items.map(item => `
+        <div class="cart-item">
+          <div class="cart-item-thumb ${bgClass[item.cat] || ''}">${catIcons[item.cat] || ''}</div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">${(item.price * item.qty).toFixed(2).replace('.', ',')} MAD</div>
+          </div>
+          <div class="cart-item-controls">
+            <div class="qty-control">
+              <button class="qty-btn" onclick="changeQty(${item.id}, -1)">&#8722;</button>
+              <span class="qty-num">${item.qty}</span>
+              <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="removeItem(${item.id})">&#215;</button>
+          </div>
+        </div>
+      `).join('');
+
+            const total = cartTotal();
+            const livraison = total > 100 ? 0 : 6;
+            footer.innerHTML = `
+        <div class="cart-summary">
+          <div class="cart-summary-row"><span>Sous-total (${cartCount()} article${cartCount() > 1 ? 's' : ''})</span><span>${total.toFixed(2).replace('.', ',')} MAD</span></div>
+          <div class="cart-summary-row"><span>Frais supplémentaires</span><span>${livraison === 0 ? '<span style="color:var(--crimson)">Non applicable  </span>' : livraison.toFixed(2) + 'MAD'}</span></div>
+          <div class="cart-summary-row"><span>Total</span><span>${(total + livraison).toFixed(2).replace('.', ',')} MAD</span></div>
+        </div>
+        <button class="btn btn-primary btn-lg btn-full" onclick="confirmOrder()">Confirmer la commande</button>
+        <button class="btn btn-ghost btn-full" onclick="clearCart()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Vider le panier
+        </button>
+      `;
+        }
+
+        function changeQty(id, delta) {
+            if (!cart[id]) return;
+            cart[id].qty = Math.max(0, cart[id].qty + delta);
+            if (cart[id].qty === 0) delete cart[id];
+            updateCartBadge(); renderCartModal();
+        }
+
+        function removeItem(id) {
+            const name = cart[id]?.name; delete cart[id];
+            updateCartBadge(); renderCartModal();
+            if (name) showToast(`${name} retiré du panier`, 'info');
+        }
+
+        function clearCart() { cart = {}; updateCartBadge(); renderCartModal(); showToast('Panier vidé', 'info'); }
+
+        function confirmOrder() {
+            if (!Object.keys(cart).length) return;
+            const items = Object.values(cart).map(i => `${i.name} x${i.qty}`).join(', ');
+            const total = cartTotal().toFixed(2).replace('.', ',') + ' MAD';
+            const now = new Date();
+            const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            orders.unshift({ id: `#CMD-00${orders.length + 1}`, products: items, date: dateStr, amount: total, status: 'pending' });
+            cart = {}; updateCartBadge(); closeCart(); renderOrders(); updateStats();
+            showToast('Commande confirmée ! En attente de validation.', 'success');
+        }
+
+        // ── ORDERS ──
+        const statusMap = { approved: ['tag-green', 'Approuvee'], pending: ['tag-yellow', 'En attente'], rejected: ['tag-red', 'Rejetee'] };
+
+        function renderOrders() {
+            const tbody = document.getElementById('ordersBody');
+            if (!orders.length) {
+                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state" style="padding:32px"><p>Aucune commande pour le moment</p></div></td></tr>`; return;
+            }
+            tbody.innerHTML = orders.map(o => {
+                const [cls, label] = statusMap[o.status] || ['tag-blue', o.status];
+                return `<tr>
+          <td><strong>${o.id}</strong></td>
+          <td style="max-width:220px;word-break:break-word;">${o.products}</td>
+          <td style="white-space:nowrap">${o.date}</td>
+          <td><strong>${o.amount}</strong></td>
+          <td><span class="tag ${cls}">${label}</span></td>
+        </tr>`;
+            }).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').textContent = orders.length;
+            document.getElementById('statApproved').textContent = orders.filter(o => o.status === 'approved').length;
+            document.getElementById('statPending').textContent = orders.filter(o => o.status === 'pending').length;
+        }
+
+        // ── TOAST ──
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            const icons = { success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>', error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>', info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' };
+            t.innerHTML = (icons[type] || '') + msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; t.style.transition = '0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
+        }
+
+        // ── INIT ──
+        renderTabs();
+        renderProducts();
+        renderOrders();
+        updateStats();
+    </script>
+</body>
+
+</html>
