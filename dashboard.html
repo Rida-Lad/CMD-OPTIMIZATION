@@ -147,6 +147,12 @@
             height: 72px;
         }
 
+        .product-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .product-info {
             padding: 16px;
         }
@@ -205,6 +211,12 @@
         .cart-item-thumb svg {
             width: 28px;
             height: 28px;
+        }
+
+        .cart-item-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .cart-item-info {
@@ -343,6 +355,11 @@
         .bg-dessert {
             background: linear-gradient(135deg, #fdf0ff, #f0d4f8);
         }
+
+        /* Payment modal styling */
+        #paymentModal, #cardFormModal, #successModal {
+            animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 
@@ -472,6 +489,90 @@
         </div>
     </div>
 
+    <!-- Payment Selection Modal -->
+    <div class="overlay" id="paymentOverlay">
+        <div class="modal" id="paymentModal">
+            <div class="modal-header">
+                <span class="modal-title">Mode de Paiement</span>
+                <button class="modal-close" onclick="closePaymentSelection()">&#215;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 20px 0;">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: flex; align-items: center; gap: 12px; padding: 16px; border: 2px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; margin-bottom: 12px; transition: var(--transition);" onmouseover="this.style.borderColor='var(--crimson)'" onmouseout="this.style.borderColor='var(--border)'">
+                            <input type="radio" name="paymentMethod" value="card" style="width: 18px; height: 18px; cursor: pointer;">
+                            <div style="text-align: left;">
+                                <div style="font-weight: 600; color: var(--ink);">Paiement par Carte</div>
+                                <div style="font-size: 12px; color: var(--ink-muted);">Carte de crédit ou débit</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 12px; padding: 16px; border: 2px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition);" onmouseover="this.style.borderColor='var(--crimson)'" onmouseout="this.style.borderColor='var(--border)'">
+                            <input type="radio" name="paymentMethod" value="onsite" style="width: 18px; height: 18px; cursor: pointer;">
+                            <div style="text-align: left;">
+                                <div style="font-weight: 600; color: var(--ink);">Paiement sur Place</div>
+                                <div style="font-size: 12px; color: var(--ink-muted);">Lors de la réception de votre commande</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-lg btn-full" onclick="selectPaymentMethod(document.querySelector('input[name=paymentMethod]:checked').value)">Continuer</button>
+                <button class="btn btn-ghost btn-full" onclick="closePaymentSelection()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Entry Modal -->
+    <div class="overlay" id="cardFormOverlay">
+        <div class="modal" id="cardFormModal">
+            <div class="modal-header">
+                <span class="modal-title">Informations de Paiement</span>
+                <button class="modal-close" onclick="closeCardForm()">&#215;</button>
+            </div>
+            <div class="modal-body">
+                <form id="cardForm" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Numéro de Carte</label>
+                        <input type="text" id="cardNumber" placeholder="4532 1111 1111 1111" class="form-input" maxlength="19">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Date d'Expiration</label>
+                            <input type="text" id="expiryDate" placeholder="MM/YY" class="form-input" maxlength="5">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">CVV</label>
+                            <input type="text" id="cvv" placeholder="123" class="form-input" maxlength="3">
+                        </div>
+                    </div>
+                    <div style="padding: 12px; background: var(--off-white); border-radius: var(--radius-sm); font-size: 12px; color: var(--ink-muted);">
+                        ℹ️ Ceci est un formulaire de démonstration. Aucune donnée réelle n'est collectée.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-lg btn-full" onclick="submitCardForm()">Payer Maintenant</button>
+                <button class="btn btn-ghost btn-full" onclick="closeCardForm()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Success Modal -->
+    <div class="overlay" id="successOverlay">
+        <div class="modal" id="successModal" style="text-align: center; max-width: 400px;">
+            <div class="modal-body" style="padding: 40px 28px;">
+                <div style="font-size: 56px; margin-bottom: 16px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--crimson)" stroke-width="2" style="width: 64px; height: 64px; margin: 0 auto; display: block;">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <h3 style="font-family: var(--font-display); font-size: 24px; color: var(--ink); margin-bottom: 8px;">Paiement Réussi</h3>
+                <p style="color: var(--ink-muted); font-size: 14px;">Votre commande a été confirmée avec succès.</p>
+            </div>
+        </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
@@ -537,18 +638,18 @@
 
         // ── MENU DATA ──
         const products = [
-            { id: 1, name: 'Burger Kefta', cat: 'Burgers', price: 35.00, desc: 'Pain brioche, kefta grillée, tomate, oignon, harissa maison' },
-            { id: 2, name: 'Burger Mergez', cat: 'Burgers', price: 38.00, desc: 'Pain brioche, mergez grillée, roquette, fromage fondu' },
-            { id: 3, name: 'Sandwich Chawarma', cat: 'Sandwichs', price: 30.00, desc: 'Agneau mariné, légumes grillés, sauce tahini, pain markouk' },
-            { id: 4, name: 'Sandwich Poulet', cat: 'Sandwichs', price: 28.00, desc: 'Poulet rôti, salade, cornichons, mayo, pain baguette' },
-            { id: 5, name: 'Pizza Marocaine', cat: 'Pizzas', price: 55.00, desc: 'Base tomate, kefta, poivrons, olives, cumin, fromage' },
-            { id: 6, name: 'Pizza Quatre Fromages', cat: 'Pizzas', price: 60.00, desc: 'Mozzarella, gouda, chèvre, parmesan, origan' },
-            { id: 7, name: 'Frites Maison', cat: 'Accompagnements', price: 15.00, desc: 'Frites fraîches dorées, épices marocaines, sauce dip' },
-            { id: 8, name: 'Salade Zaalouk', cat: 'Accompagnements', price: 18.00, desc: 'Aubergine, tomate, ail, coriandre, huile d\'olive' },
-            { id: 9, name: 'Jus d\'Orange Frais', cat: 'Boissons', price: 18.00, desc: 'Oranges pressées à la commande, sans sucre ajouté' },
-            { id: 10, name: 'Avocat Lait', cat: 'Boissons', price: 22.00, desc: 'Avocat frais, lait, miel — la star de Marrakech' },
-            { id: 11, name: 'Cornes de Gazelle', cat: 'Desserts', price: 20.00, desc: 'Pâte feuilletée, amandes, fleur d\'oranger, sucre glace' },
-            { id: 12, name: 'Chebakia', cat: 'Desserts', price: 18.00, desc: 'Biscuit au miel et sésame, parfum de fleur d\'oranger' },
+            { id: 1, name: 'Burger Kefta', cat: 'Burgers', price: 35.00, desc: 'Pain brioche, kefta grillée, tomate, oignon, harissa maison', image: 'images/burger-kefta.png' },
+            { id: 2, name: 'Burger Mergez', cat: 'Burgers', price: 38.00, desc: 'Pain brioche, mergez grillée, roquette, fromage fondu', image: 'images/burger-mergez.png' },
+            { id: 3, name: 'Sandwich Chawarma', cat: 'Sandwichs', price: 30.00, desc: 'Agneau mariné, légumes grillés, sauce tahini, pain markouk', image: 'images/sandwich-chawarma.png' },
+            { id: 4, name: 'Sandwich Poulet', cat: 'Sandwichs', price: 28.00, desc: 'Poulet rôti, salade, cornichons, mayo, pain baguette', image: 'images/sandwich-poulet.png' },
+            { id: 5, name: 'Pizza Marocaine', cat: 'Pizzas', price: 55.00, desc: 'Base tomate, kefta, poivrons, olives, cumin, fromage', image: 'images/pizza-marocaine.png' },
+            { id: 6, name: 'Pizza Quatre Fromages', cat: 'Pizzas', price: 60.00, desc: 'Mozzarella, gouda, chèvre, parmesan, origan', image: 'images/pizza-fromages.png' },
+            { id: 7, name: 'Frites Maison', cat: 'Accompagnements', price: 15.00, desc: 'Frites fraîches dorées, épices marocaines, sauce dip', image: 'images/frites.png' },
+            { id: 8, name: 'Salade Zaalouk', cat: 'Accompagnements', price: 18.00, desc: 'Aubergine, tomate, ail, coriandre, huile d\'olive', image: 'images/zaalouk.png' },
+            { id: 9, name: 'Jus d\'Orange Frais', cat: 'Boissons', price: 18.00, desc: 'Oranges pressées à la commande, sans sucre ajouté', image: 'images/jus-orange.png' },
+            { id: 10, name: 'Avocat Lait', cat: 'Boissons', price: 22.00, desc: 'Avocat frais, lait, miel — la star de Marrakech', image: 'images/avocat-lait.png' },
+            { id: 11, name: 'Cornes de Gazelle', cat: 'Desserts', price: 20.00, desc: 'Pâte feuilletée, amandes, fleur d\'oranger, sucre glace', image: 'images/cornes-gazelle.png' },
+            { id: 12, name: 'Chebakia', cat: 'Desserts', price: 18.00, desc: 'Biscuit au miel et sésame, parfum de fleur d\'oranger', image: 'images/chebakia.png' },
         ];
 
         let orders = [
@@ -582,7 +683,7 @@
             const filtered = currentCat === 'Tous' ? products : products.filter(p => p.cat === currentCat);
             grid.innerHTML = filtered.map(p => `
         <div class="product-card">
-          <div class="product-img ${bgClass[p.cat] || ''}">${catIcons[p.cat] || ''}</div>
+          <div class="product-img"><img src="${p.image}" alt="${p.name}" /></div>
           <div class="product-info">
             <div class="product-name">${p.name}</div>
             <div class="product-desc">${p.desc}</div>
@@ -632,7 +733,7 @@
 
             content.innerHTML = items.map(item => `
         <div class="cart-item">
-          <div class="cart-item-thumb ${bgClass[item.cat] || ''}">${catIcons[item.cat] || ''}</div>
+          <div class="cart-item-thumb"><img src="${item.image}" alt="${item.name}" /></div>
           <div class="cart-item-info">
             <div class="cart-item-name">${item.name}</div>
             <div class="cart-item-price">${(item.price * item.qty).toFixed(2).replace('.', ',')} MAD</div>
@@ -681,6 +782,11 @@
 
         function confirmOrder() {
             if (!Object.keys(cart).length) return;
+            openPaymentSelection();
+        }
+
+        function completePaymentOrder() {
+            if (!Object.keys(cart).length) return;
             const items = Object.values(cart).map(i => `${i.name} x${i.qty}`).join(', ');
             const total = cartTotal().toFixed(2).replace('.', ',') + ' MAD';
             const now = new Date();
@@ -688,6 +794,59 @@
             orders.unshift({ id: `#CMD-00${orders.length + 1}`, products: items, date: dateStr, amount: total, status: 'pending' });
             cart = {}; updateCartBadge(); closeCart(); renderOrders(); updateStats();
             showToast('Commande confirmée ! En attente de validation.', 'success');
+        }
+
+        function openPaymentSelection() {
+            document.getElementById('paymentOverlay').classList.add('active');
+        }
+
+        function closePaymentSelection() {
+            document.getElementById('paymentOverlay').classList.remove('active');
+        }
+
+        function selectPaymentMethod(method) {
+            if (method === 'card') {
+                closePaymentSelection();
+                openCardForm();
+            } else if (method === 'onsite') {
+                closePaymentSelection();
+                completePaymentOrder();
+            }
+        }
+
+        function openCardForm() {
+            document.getElementById('cardFormOverlay').classList.add('active');
+            document.getElementById('cardForm').reset();
+        }
+
+        function closeCardForm() {
+            document.getElementById('cardFormOverlay').classList.remove('active');
+        }
+
+        function submitCardForm() {
+            const cardNum = document.getElementById('cardNumber').value.trim();
+            const expiry = document.getElementById('expiryDate').value.trim();
+            const cvv = document.getElementById('cvv').value.trim();
+
+            if (!cardNum || !expiry || !cvv) {
+                showToast('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            closeCardForm();
+            openPaymentSuccess();
+        }
+
+        function openPaymentSuccess() {
+            document.getElementById('successOverlay').classList.add('active');
+            setTimeout(() => {
+                closePaymentSuccess();
+                completePaymentOrder();
+            }, 2000);
+        }
+
+        function closePaymentSuccess() {
+            document.getElementById('successOverlay').classList.remove('active');
         }
 
         // ── ORDERS ──
